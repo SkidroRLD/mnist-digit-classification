@@ -5,7 +5,7 @@ from pathlib import Path
 import torch
 from torch.utils.data import Dataset
 
-
+device = ("cuda" if torch.cuda.is_available() else "cpu")
 path = Path('.')
 
 class digitDataset(Dataset):
@@ -16,7 +16,7 @@ class digitDataset(Dataset):
     def __len__(self):
         return len(self.ids)
     def __getitem__(self, index):
-        return torch.asarray(self.img[index]), torch.asitem([self.ids[index]])
+        return torch.asarray(self.img[index]).reshape(1,28,28).permute(0,2,1).type(torch.float).to(device), torch.Tensor([self.ids[index]]).to(device)
 
 
 def readcsv():
@@ -32,8 +32,7 @@ def readcsv():
 
 def create_dataset():
     train, test = readcsv()
-    train_dataset = digitDataset(train)
+    train_dataset = digitDataset(train[0:37800])
+    valid_dataset = digitDataset(train[3780:])
     test_dataset = digitDataset(test)
-    return train_dataset, test_dataset
-
-create_dataset()
+    return train_dataset, valid_dataset, test_dataset
