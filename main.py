@@ -5,6 +5,7 @@ from img_convert import create_dataset
 from model import One_Hot, CNN
 from tqdm import tqdm
 from pathlib import Path
+import csv
 
 f = open('pred.txt', 'w')
 
@@ -17,7 +18,7 @@ train_set, valid_set, test_set = create_dataset()
 batch = 1024
 one_hot = One_Hot(10).to(device)
 
-num_epochs = 15
+num_epochs = 25
 valid_every = 5
 def train():
     train_loader = DataLoader(train_set, batch_size = batch)
@@ -38,17 +39,20 @@ def train():
                 pred = output.data.max(1, keepdim=True)[1]
                 target = item[1]
                 correct += (pred == target).sum()
-            print("Accuracy = ", correct/valid_set.__len__())
+            print("Accuracy = ", correct.item()/valid_set.__len__())
 
 def test():
-    test_loader = DataLoader(test_set, batch_size = 1)
-    correct = 0
+    test_loader = DataLoader(test_set, batch_size = batch)
+    const = 1
+    f.write("ImageId,Label \n")
+    m = lambda z, const: [f.write(str(i + const) + ',' + str(z[i].item()) + '\n') for i in range(len(z))]
     for idx, item in tqdm(enumerate(test_loader)):
-        output = digitCNN(item[0])
+        output = digitCNN(item)
         pred = output.data.max(1, keepdim=True)[1]
-        f.write(str(pred))
-        f.write('\n')
-    print("Accuracy = ", correct/test_set.__len__())
+        pred = pred.cpu().numpy()
+        m(pred, const)
+        const += 1024
+        
 
 
 train()

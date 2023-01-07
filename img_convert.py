@@ -21,7 +21,7 @@ class digitDataset(Dataset):
 class testdigitDataset(Dataset):
     def __init__(self, dset) -> None:
         super().__init__()
-        self.img = dset[:,:]
+        self.img = dset
     def __len__(self):
         return len(self.img)
     def __getitem__(self, index):
