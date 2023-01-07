@@ -6,6 +6,8 @@ from model import One_Hot, CNN
 from tqdm import tqdm
 from pathlib import Path
 
+f = open('pred.txt', 'w')
+
 device = ("cuda" if torch.cuda.is_available() else "cpu")
 path = Path('.')
 digitCNN = CNN().to(device)
@@ -35,8 +37,8 @@ def train():
                 output = digitCNN(item[0])
                 pred = output.data.max(1, keepdim=True)[1]
                 target = item[1]
-                correct += (pred == target)
-            print("Accuracy = ", correct/test_set.__len__())
+                correct += (pred == target).sum()
+            print("Accuracy = ", correct/valid_set.__len__())
 
 def test():
     test_loader = DataLoader(test_set, batch_size = 1)
@@ -44,8 +46,8 @@ def test():
     for idx, item in tqdm(enumerate(test_loader)):
         output = digitCNN(item[0])
         pred = output.data.max(1, keepdim=True)[1]
-        target = item[1]
-        correct += (pred == target)
+        f.write(str(pred))
+        f.write('\n')
     print("Accuracy = ", correct/test_set.__len__())
 
 

@@ -18,6 +18,15 @@ class digitDataset(Dataset):
     def __getitem__(self, index):
         return torch.asarray(self.img[index]).reshape(1,28,28).permute(0,2,1).type(torch.float).to(device), torch.Tensor([self.ids[index]]).to(device)
 
+class testdigitDataset(Dataset):
+    def __init__(self, dset) -> None:
+        super().__init__()
+        self.img = dset[:,:]
+    def __len__(self):
+        return len(self.img)
+    def __getitem__(self, index):
+        return torch.asarray(self.img[index]).reshape(1,28,28).permute(0,2,1).type(torch.float).to(device)
+
 
 def readcsv():
     
@@ -34,5 +43,5 @@ def create_dataset():
     train, test = readcsv()
     train_dataset = digitDataset(train[0:37800])
     valid_dataset = digitDataset(train[3780:])
-    test_dataset = digitDataset(test)
+    test_dataset = testdigitDataset(test)
     return train_dataset, valid_dataset, test_dataset
