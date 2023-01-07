@@ -7,7 +7,8 @@ from tqdm import tqdm
 from pathlib import Path
 import csv
 
-f = open('pred.txt', 'w')
+f = open('pred.csv', 'w', newline='')
+csvwriter = csv.writer(f)
 
 device = ("cuda" if torch.cuda.is_available() else "cpu")
 path = Path('.')
@@ -44,8 +45,8 @@ def train():
 def test():
     test_loader = DataLoader(test_set, batch_size = batch)
     const = 1
-    f.write("ImageId,Label \n")
-    m = lambda z, const: [f.write(str(i + const) + ',' + str(z[i].item()) + '\n') for i in range(len(z))]
+    csvwriter.writerow(["ImageId","Label"])
+    m = lambda z, const: [csvwriter.writerow([str(i + const), str(z[i].item())]) for i in range(len(z))]
     for idx, item in tqdm(enumerate(test_loader)):
         output = digitCNN(item)
         pred = output.data.max(1, keepdim=True)[1]
